@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,9 +19,18 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.5.0",
     "mongoose": "^9.9.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roshanwadhai175-droid/G-One-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/roshanwadhai175-droid/G-One-backend/issues"
+  },
+  "homepage": "https://github.com/roshanwadhai175-droid/G-One-backend#readme"
 }
