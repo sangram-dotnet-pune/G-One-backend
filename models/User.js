@@ -48,17 +48,16 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// This is a "hook". It runs automatically right BEFORE we save a user to the database.
-userSchema.pre('save', async function (next) {
+// UPDATE: We removed 'next' from the async function. Mongoose 8+ handles this automatically!
+userSchema.pre('save', async function () {
   // If the password wasn't changed (e.g., they only updated their name), skip this step.
   if (!this.isModified('password')) {
-    return next();
+    return;
   }
 
   // Generate a 'salt' (random characters) and hash the password with it.
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // This is a custom helper function we attach to every user. 

@@ -56,7 +56,8 @@ const registerUser = async (req, res) => {
     }
   } catch (error) {
     console.error(`[Auth Error - Register]: ${error.message}`);
-    res.status(500).json({ success: false, message: 'Server Error during registration' });
+    // EXPOSING THE EXACT ERROR TO THE FRONTEND
+    res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
   }
 };
 
@@ -95,7 +96,8 @@ const loginUser = async (req, res) => {
     }
   } catch (error) {
     console.error(`[Auth Error - Login]: ${error.message}`);
-    res.status(500).json({ success: false, message: 'Server Error during login' });
+    // EXPOSING THE EXACT ERROR TO THE FRONTEND
+    res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
   }
 };
 
@@ -113,7 +115,8 @@ const logoutUser = async (req, res) => {
     res.status(200).json({ success: true, message: 'Logged out successfully' });
   } catch (error) {
     console.error(`[Auth Error - Logout]: ${error.message}`);
-    res.status(500).json({ success: false, message: 'Server Error during logout' });
+    // EXPOSING THE EXACT ERROR TO THE FRONTEND
+    res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
   }
 };
 
@@ -126,7 +129,8 @@ const getMe = async (req, res) => {
     res.status(200).json({ success: true, user: req.user });
   } catch (error) {
     console.error(`[Auth Error - GetMe]: ${error.message}`);
-    res.status(500).json({ success: false, message: 'Server Error fetching user data' });
+    // EXPOSING THE EXACT ERROR TO THE FRONTEND
+    res.status(500).json({ success: false, message: `Server Error: ${error.message}` });
   }
 };
 
