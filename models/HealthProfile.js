@@ -2,82 +2,104 @@
 
 const mongoose = require('mongoose');
 
-// We define the rules for a user's medical and emergency data.
+// We define the rules for a user's deep medical and lifestyle data.
+// Everything is optional by default (except the user link) to allow "Progressive Profiling".
 const healthProfileSchema = new mongoose.Schema(
   {
-    // 1. LINKING TO THE USER
-    // This connects this specific health profile to a specific login account.
+    // --- 1. CORE IDENTITY ---
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Points to the 'User' model we created earlier
+      ref: 'User',
       required: true,
     },
+    profileCompletionScore: {
+      type: Number,
+      default: 10, // Base score just for registering
+    },
 
-    // 2. BASIC VITALS
+    // --- 2. BASIC VITALS (Essential for Drug Dosages & Triage) ---
     bloodGroup: {
       type: String,
-      // We force the data to be one of these exact strings to prevent typos like "O positive" vs "O+"
       enum: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-', 'Unknown'],
       default: 'Unknown',
     },
-    age: {
-      type: Number,
-    },
-    height: {
-      type: Number, // Stored in cm
-    },
-    weight: {
-      type: Number, // Stored in kg
-    },
+    height: { type: Number }, // In cm
+    weight: { type: Number }, // In kg
+    dateOfBirth: { type: Date }, 
 
-    // 3. THE "CONTEXT ENGINE" DATA (Crucial for our AI)
-    allergies: [
-      { type: String } // e.g., ["Penicillin", "Peanuts", "Dust"]
-    ],
-    medicalConditions: [
-      { type: String } // e.g., ["Diabetes", "Asthma", "Hypertension"]
-    ],
+    // --- 3. CRITICAL MEDICAL CONTEXT (The "Do Not Kill Me" Data) ---
+    allergies: [{ type: String }], // e.g., ["Penicillin", "Peanuts", "Latex"]
+    medicalConditions: [{ type: String }], // e.g., ["Type 2 Diabetes", "Asthma"]
     
-    // --- DESIGNING FOR THE FUTURE MODULES ---
-
-    // For the "Medicine Reminder" and "AI Context" modules
     medications: [
       {
         name: { type: String, required: true },
-        dosage: { type: String }, // e.g., "500mg"
-        frequency: { type: String }, // e.g., "Twice a day"
+        dosage: { type: String }, // e.g., "50mg"
+        frequency: { type: String }, // e.g., "Once daily"
       }
     ],
 
-    // For the "Auto-SOS" and "Emergency Dispatch" modules
+    // --- 4. SURGICAL & SPECIALIZED DATA (For AI Context in Emergencies) ---
+    pastSurgeries: [
+      {
+        procedure: { type: String },
+        year: { type: Number },
+      }
+    ],
+    implants: [{ type: String }], // e.g., ["Pacemaker", "Metal plate in left arm"] - Crucial for MRI warnings
+    vaccinations: [{ type: String }], // e.g., ["COVID-19", "Tetanus"]
+
+    // --- 5. LIFESTYLE & HABITS (For Everyday AI Health Queries) ---
+    lifestyle: {
+      dietType: { 
+        type: String, 
+        enum: ['Standard', 'Vegan', 'Vegetarian', 'Keto', 'Diabetic', 'Other'],
+        default: 'Standard' 
+      },
+      smokingStatus: { 
+        type: String, 
+        enum: ['Never', 'Former', 'Current', 'Occasional'],
+        default: 'Never' 
+      },
+      alcoholConsumption: { 
+        type: String, 
+        enum: ['None', 'Occasional', 'Moderate', 'Heavy'],
+        default: 'None' 
+      },
+      activityLevel: {
+        type: String,
+        enum: ['Sedentary', 'Light', 'Moderate', 'Active', 'Athlete'],
+        default: 'Moderate'
+      }
+    },
+
+    // --- 6. FAMILY & GENETICS (For Predictive Risk Alerts) ---
+    familyHistory: [
+      {
+        relation: { type: String }, // e.g., "Father"
+        condition: { type: String }, // e.g., "Heart Attack before 50"
+      }
+    ],
+
+    // --- 7. EMERGENCY LOGISTICS ---
     emergencyContacts: [
       {
-        name: { type: String, required: true },
-        relation: { type: String, required: true }, // e.g., "Father", "Spouse"
-        phone: { type: String, required: true },
+        name: { type: String },
+        relation: { type: String },
+        phone: { type: String },
       }
     ],
-
-    // For the "Insurance Assistant" module later
     insuranceDetails: {
       provider: { type: String },
       policyNumber: { type: String },
     },
-
     isOrganDonor: {
       type: Boolean,
       default: false,
-    },
-
-    // For the "AI Health Score" (out of 100) that you requested
-    profileCompletionScore: {
-      type: Number,
-      default: 10, // Starts at 10% just for signing up
     }
   },
   {
-    // Automatically adds 'createdAt' and 'updatedAt'
-    timestamps: true,
+    timestamps: true, // Automatically tracks createdAt and updatedAt
   }
 );
 

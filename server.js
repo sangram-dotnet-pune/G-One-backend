@@ -4,14 +4,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const connectDB = require('./config/db');
 
 // Initialize Express App
 const app = express();
 
 // ==========================================
-// 1. MIDDLEWARES
+// 1. MIDDLEWARES (CRITICAL FOR CORS)
 // ==========================================
-
 // Configure CORS to accept requests from our Vite frontend
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
@@ -26,22 +26,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // ==========================================
-// 2. DATABASE CONNECTION
+// 2. API ROUTES
 // ==========================================
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`[Database] MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`[Database] Connection Error: ${error.message}`);
-    process.exit(1); // Exit process with failure code
-  }
-};
-
-// ==========================================
-// 3. API ROUTES (Placeholders for Step 1.3 & 2.1)
-// ==========================================
-
 // Base health check route to verify server is running
 app.get('/api/health', (req, res) => {
   res.status(200).json({
@@ -53,17 +39,21 @@ app.get('/api/health', (req, res) => {
 
 // We will mount our feature routers here as we build them:
 app.use('/api/auth', require('./routes/authRoutes'));
-// app.use('/api/profile', require('./routes/profileRoutes'));
+app.use('/api/profile', require('./routes/profileRoutes')); // <-- ADDED THIS LINE
 // app.use('/api/emergency', require('./routes/emergencyRoutes'));
 // app.use('/api/ai', require('./routes/aiRoutes'));
 
 // ==========================================
 // 4. ERROR HANDLING
 // ==========================================
-
-// Handle undefined routes
-app.use('*', (req, res) => {
-  res.status(404).json({ success: false, message: 'API Route not found' });
+// 3. ERROR HANDLING
+// ==========================================
+// Handle undefined routes safely without crashing
+app.use((req, res, next) => {
+  res.status(404).json({ 
+    success: false, 
+    message: `API Route not found: ${req.originalUrl}` 
+  });
 });
 
 // Global Error Handler
@@ -76,13 +66,12 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json({
     success: false,
     message: message,
-    // Only reveal full error stack in development mode
     stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
   });
 });
 
 // ==========================================
-// 5. SERVER INITIALIZATION
+// 4. SERVER INITIALIZATION
 // ==========================================
 const PORT = process.env.PORT || 5000;
 

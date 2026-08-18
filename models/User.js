@@ -48,7 +48,9 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+// UPDATE: We removed 'next' from the async function. Mongoose 8+ handles this automatically!
 userSchema.pre('save', async function () {
+  // If the password wasn't changed (e.g., they only updated their name), skip this step.
   if (!this.isModified('password')) {
     return;
   }
